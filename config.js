@@ -1,0 +1,7 @@
+window.HH_CONFIG = {
+  // Leave blank to use local demo mode.
+  // For Supabase, paste your project URL and anon key here.
+  SUPABASE_URL: "",
+  SUPABASE_ANON_KEY: "",
+  CLIMATE_LOOKUP_URL: ""
+};

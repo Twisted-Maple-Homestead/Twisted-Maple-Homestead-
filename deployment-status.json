@@ -1,0 +1,29 @@
+{
+  "supabase": {
+    "project_created": false,
+    "migrations_applied": false,
+    "seed_applied": false,
+    "rls_tested": false
+  },
+  "climate": {
+    "noaa_token_added": false,
+    "edge_function_deployed": false,
+    "multi_region_tested": false
+  },
+  "billing": {
+    "stripe_test_prices_created": false,
+    "checkout_function_deployed": false,
+    "webhook_configured": false,
+    "subscription_sync_tested": false
+  },
+  "frontend": {
+    "hosted": false,
+    "production_url": "",
+    "custom_domain": "",
+    "mobile_tested": false
+  },
+  "beta": {
+    "two_user_test_passed": false,
+    "launch_blockers_remaining": []
+  }
+}

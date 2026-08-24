@@ -1,0 +1,7 @@
+# Cloudflare Pages
+# Framework preset: None
+# Build command: (leave blank)
+# Build output directory: .
+#
+# Add these as environment variables only if you later add a build step.
+# The current static app reads public config from config.js.
