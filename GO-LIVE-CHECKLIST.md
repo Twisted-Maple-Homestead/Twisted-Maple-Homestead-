@@ -25,6 +25,9 @@ Last reviewed: 2026-09-13
 - [x] Common form input validation implemented
 - [x] Task completion persistence implemented
 - [x] Planting edit and delete implemented
+- [x] Account/data controls added to My tab
+- [x] Local demo-data deletion implemented with double confirmation
+- [ ] Secure cloud-account deletion backend deployed and tested
 - [ ] Plus purchase works end to end
 - [ ] Trial messaging finalized
 - [ ] Empty states reviewed throughout app
@@ -35,7 +38,8 @@ Last reviewed: 2026-09-13
 - [ ] Support email finalized
 - [ ] Refund and cancellation information finalized
 - [x] Data export works
-- [ ] Account data removal process finalized
+- [x] Account deletion process documented
+- [ ] Cloud account deletion finalized
 
 ## Quality
 - [ ] Two-user isolation test passed
@@ -47,12 +51,13 @@ Last reviewed: 2026-09-13
 - [ ] Error states tested across core forms
 - [ ] Billing failure tested
 - [ ] Climate lookup failure tested
+- [ ] Cloud account deletion tested with disposable users
 
 ## Current launch blockers
 - Production Supabase setup and RLS verification
 - Production climate configuration
 - Billing setup and end-to-end subscription testing
-- Account data removal process
+- Secure cloud account deletion backend and two-user deletion test
 - Full mobile, offline, slow-network, and failure-state regression testing
 
 ## Decision
