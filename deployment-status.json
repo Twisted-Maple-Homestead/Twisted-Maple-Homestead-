@@ -1,4 +1,5 @@
 {
+  "last_reviewed": "2026-09-13",
   "supabase": {
     "project_created": false,
     "migrations_applied": false,
@@ -17,13 +18,39 @@
     "subscription_sync_tested": false
   },
   "frontend": {
-    "hosted": false,
-    "production_url": "",
+    "hosted": true,
+    "provider": "Vercel",
+    "production_url": "https://homestead-helper-twisted-maple-homestead.vercel.app",
     "custom_domain": "",
-    "mobile_tested": false
+    "https_active": true,
+    "mobile_tested": true,
+    "mobile_test_scope": "Multiple core screens and flows manually tested on iPhone; full release regression pass still required.",
+    "pwa_cache_version": "hh-v4"
+  },
+  "product": {
+    "offspring_outcome_fix": true,
+    "offspring_fix_loaded": true,
+    "offspring_duplicate_protection": true,
+    "input_validation": true,
+    "task_completion_supabase_persistence": true,
+    "planting_edit_delete": true,
+    "data_export": true
+  },
+  "legal": {
+    "privacy_page": true,
+    "terms_page": true,
+    "account_deletion_flow_complete": false
   },
   "beta": {
     "two_user_test_passed": false,
-    "launch_blockers_remaining": []
+    "launch_blockers_remaining": [
+      "Create and configure production Supabase project",
+      "Apply migrations and seed data",
+      "Verify row-level security with two separate users",
+      "Deploy and verify climate edge functions and NOAA configuration",
+      "Configure and test Stripe checkout, webhook, and subscription sync",
+      "Complete cloud-account deletion flow",
+      "Run full mobile, offline, slow-network, and error-state regression testing"
+    ]
   }
 }

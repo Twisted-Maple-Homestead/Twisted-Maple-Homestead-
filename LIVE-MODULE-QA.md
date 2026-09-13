@@ -1,14 +1,17 @@
-# Homestead Helper v5 — Live Module QA Checklist
+# Homestead Helper — Live Module QA Checklist
 
-Use this after the v4 migrations/seed are installed and `config.js` is connected.
+Use this after the production Supabase migrations/seed are installed and `config.js` is connected.
 
 ## Garden
 
 - Sign in as User A.
 - Add a bed.
 - Add a planting.
-- Add bed history.
+- Confirm the planting stores the crop-reference ID, not the display name.
+- Add bed history and confirm `crop_id` and `plant_family` persist.
 - Record a harvest.
+- Edit a planting quantity/status.
+- Delete a planting.
 - Refresh and verify all records reload from Supabase.
 - Sign in as User B and verify User A's rows are not visible.
 
@@ -16,55 +19,58 @@ Use this after the v4 migrations/seed are installed and `config.js` is connected
 
 - Add an animal group.
 - Record an animal loss and verify current count decreases.
+- Attempt a loss greater than the current count and verify it is blocked.
 - Add a health record.
 - Add a preventive-care reminder with a due date.
 - Verify a corresponding task appears on Home.
 - Add a breeding record with an expected due/hatch date.
 - Verify a corresponding task appears on Home.
 - Record a birth/hatch event.
+- Verify the breeding record becomes Completed.
+- Verify surviving offspring are added to the linked animal group.
+- Attempt to record a second outcome for the same breeding record and verify it is blocked.
+- Delete health, care, and breeding records and verify persistence after refresh.
 
 ## Tree tapping
 
 - Record sap.
 - Add a syrup batch.
+- Verify invalid or negative batch values are blocked.
 - Verify the sap:syrup ratio displays on the Homestead tab.
-- Refresh and verify the batch reloads from Supabase.
+- Delete a syrup batch and refresh to verify deletion persists.
+- Refresh and verify batches reload from Supabase.
 
 ## Tasks
 
 - Care reminders and breeding dates should create tasks.
-- Marking a task Done still works locally in this build.
-- Next pass should persist task-completion updates to Supabase.
+- Mark a Supabase-backed task Done.
+- Refresh and verify it remains Done.
 
-## Known follow-up items
+## Validation
 
-- Crop names in new plantings currently use the UI crop name as `crop_id`; production should map exact crop reference IDs.
-- Bed-history family uses the client-side starter crop family map; production should fetch `plant_family` from `crop_reference`.
-- True subscription billing is not active yet.
-- Task completion needs a Supabase update call.
-- Editing/deleting health, care, breeding, and batch records is not yet exposed in UI.
+- Try blank required fields in core forms.
+- Try zero or negative harvest and sap quantities.
+- Try invalid animal counts and bed dimensions.
+- Verify validation messages appear before data is saved.
 
+## PWA / mobile
 
-## v6 production-gap tests
+- Install or open the PWA on iPhone.
+- Confirm the newest service worker replaces stale caches.
+- Verify `offspring-fix.js` and `input-validation.js` are active after refresh.
+- Test core screens while offline after they have been cached.
+- Reconnect and confirm normal operation resumes.
 
-### Crop IDs
-- Add a planting.
-- Confirm `plantings.crop_id` contains a crop-reference ID such as `VEG001`, not `Tomato`.
-- Add bed history and confirm both `crop_id` and `plant_family` are stored.
+## Legal / data
 
-### Task persistence
-- Complete a Supabase-backed task.
-- Refresh.
-- Verify it remains Done.
+- Open Privacy and Terms pages from the app.
+- Export app data and confirm the JSON file contains the expected records.
+- Verify the final account data removal process once it is implemented.
 
-### Edit/delete
-- Edit a planting quantity/status and refresh.
-- Delete a health record, care reminder, breeding record, planting, and syrup batch; refresh and verify deletion.
+## Remaining production follow-up items
 
-### Billing
-- Use Stripe test mode.
-- Start monthly checkout.
-- Complete Checkout with a Stripe test card.
-- Confirm `subscriptions.status` becomes `trialing` or `active`.
-- Refresh the app and verify Plus unlocks.
-- Cancel/update through Stripe and verify webhook changes are reflected.
+- Production Supabase project, migrations, seed, and two-user RLS verification.
+- Production climate/NOAA configuration and failure testing.
+- End-to-end Plus billing and subscription synchronization testing.
+- Final account data removal process.
+- Full mobile, offline, slow-network, and error-state regression pass.
