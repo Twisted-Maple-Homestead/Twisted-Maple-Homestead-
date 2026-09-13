@@ -5,3 +5,10 @@ window.HH_CONFIG = {
   SUPABASE_ANON_KEY: "",
   CLIMATE_LOOKUP_URL: ""
 };
+
+// Load small compatibility fixes after the main app has initialized.
+document.addEventListener("DOMContentLoaded", () => {
+  const script = document.createElement("script");
+  script.src = "offspring-fix.js";
+  document.body.appendChild(script);
+});
