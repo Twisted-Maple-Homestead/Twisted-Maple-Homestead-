@@ -16,6 +16,7 @@
     if (live > total) return alert("Live offspring cannot be greater than the total born or hatched.");
     if (earlyLoss > live) return alert("Early losses cannot be greater than the live count.");
 
+    const survivors = Math.max(0, live - earlyLoss);
     const local = JSON.parse(localStorage.getItem("hh_data") || "{}");
     local.breeding = local.breeding || [];
     local.offspring = local.offspring || [];
@@ -49,11 +50,12 @@
         const user = session?.user;
 
         if (user) {
-          const { data: existing } = await sb.from("offspring_events")
+          const { data: existing, error: existingError } = await sb.from("offspring_events")
             .select("id")
             .eq("user_id", user.id)
             .eq("breeding_id", breedingId)
             .limit(1);
+          if (existingError) throw existingError;
 
           if (existing?.length) {
             return alert("An offspring outcome has already been recorded for this breeding record.");
@@ -81,8 +83,8 @@
             .eq("user_id", user.id);
           if (breedingError) throw breedingError;
 
-          if (group && live > 0) {
-            const nextCount = Math.max(0, +(group.current || 0) + live);
+          if (group && survivors > 0) {
+            const nextCount = Math.max(0, +(group.current || 0) + survivors);
             const { error: groupError } = await sb.from("animal_groups")
               .update({ current_count: nextCount })
               .eq("id", group.id)
@@ -95,8 +97,8 @@
         console.error("Offspring outcome update failed", err);
         return alert("The offspring outcome could not be saved. Please try again.");
       }
-    } else if (group && live > 0) {
-      group.current = Math.max(0, +(group.current || 0) + live);
+    } else if (group && survivors > 0) {
+      group.current = Math.max(0, +(group.current || 0) + survivors);
     }
 
     breeding.status = "Completed";
