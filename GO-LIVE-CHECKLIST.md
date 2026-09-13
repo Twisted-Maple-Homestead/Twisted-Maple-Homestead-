@@ -1,5 +1,7 @@
 # Homestead Helper — Go-Live Checklist
 
+Last reviewed: 2026-09-13
+
 ## Infrastructure
 - [ ] Production Supabase project
 - [ ] Database migrations applied
@@ -7,38 +9,51 @@
 - [ ] RLS verified
 - [ ] Edge Functions deployed
 - [ ] NOAA token configured
-- [ ] Stripe live/test configuration intentionally selected
-- [ ] Frontend deployed
+- [ ] Stripe configuration selected
+- [x] Frontend deployed to Vercel
 - [ ] Custom domain connected
-- [ ] HTTPS active
+- [x] HTTPS active
 
 ## Product
-- [ ] Onboarding works
-- [ ] ZIP/location setup works
-- [ ] Garden core works
-- [ ] Animal loss works
-- [ ] Preservation/storage works
-- [ ] Tree tapping works
-- [ ] Plus purchase works
-- [ ] Trial messaging is accurate
-- [ ] Empty states are understandable
+- [ ] Full onboarding regression test passed
+- [ ] ZIP/location production integration passed
+- [ ] Garden core regression test passed
+- [ ] Animal loss regression test passed
+- [ ] Preservation/storage regression test passed
+- [ ] Tree tapping regression test passed
+- [x] Breeding and offspring safeguards implemented
+- [x] Common form input validation implemented
+- [x] Task completion persistence implemented
+- [x] Planting edit and delete implemented
+- [ ] Plus purchase works end to end
+- [ ] Trial messaging finalized
+- [ ] Empty states reviewed throughout app
 
 ## Legal/support
-- [ ] Privacy policy URL
-- [ ] Terms URL
-- [ ] Support email
-- [ ] Refund/cancellation information
-- [ ] Data export works
-- [ ] Account deletion path documented
+- [x] Privacy policy page present
+- [x] Terms of Use page present
+- [ ] Support email finalized
+- [ ] Refund and cancellation information finalized
+- [x] Data export works
+- [ ] Account data removal process finalized
 
 ## Quality
 - [ ] Two-user isolation test passed
-- [ ] Mobile test passed
+- [ ] Full mobile regression test passed
+- [x] Multiple core screens manually tested on iPhone
 - [ ] Slow-network test passed
-- [ ] Offline/PWA behavior understood
-- [ ] Error states tested
-- [ ] Payment failure tested
+- [ ] Offline/PWA regression test passed
+- [x] PWA cache refresh handling implemented
+- [ ] Error states tested across core forms
+- [ ] Billing failure tested
 - [ ] Climate lookup failure tested
+
+## Current launch blockers
+- Production Supabase setup and RLS verification
+- Production climate configuration
+- Billing setup and end-to-end subscription testing
+- Account data removal process
+- Full mobile, offline, slow-network, and failure-state regression testing
 
 ## Decision
 - [ ] Invite-only beta
