@@ -2,7 +2,7 @@
   if (!window.HH) return;
 
   const originalGo = window.HH.go.bind(window.HH);
-  const CLOUD_KEYS = ["hh_data", "hh_trial", "hh_location", "hh_demo_user"];
+  const LOCAL_KEYS = ["hh_data", "hh_trial", "hh_location", "hh_demo_user"];
 
   function supabaseClient(){
     const cfg = window.HH_CONFIG || {};
@@ -11,15 +11,22 @@
   }
 
   function clearLocalAccountData(){
-    CLOUD_KEYS.forEach(key => localStorage.removeItem(key));
+    LOCAL_KEYS.forEach(key => localStorage.removeItem(key));
   }
 
   async function deleteAccount(){
-    const typed = prompt('This permanently deletes your Homestead Helper account and cloud data. Type DELETE to continue.');
+    const sb = supabaseClient();
+    const cloudEnabled = (window.HH_CONFIG || {}).ACCOUNT_DELETION_ENABLED === true;
+
+    if (sb && !cloudEnabled) {
+      alert('Cloud account deletion is not enabled yet. The secure backend deletion function must be deployed and tested first. You can still export your data now.');
+      return;
+    }
+
+    const typed = prompt('This permanently deletes your Homestead Helper account and data. Type DELETE to continue.');
     if (typed !== 'DELETE') return;
     if (!confirm('Final confirmation: permanently delete this account? This cannot be undone.')) return;
 
-    const sb = supabaseClient();
     if (!sb) {
       clearLocalAccountData();
       alert('Local demo data was deleted from this device.');
@@ -42,7 +49,7 @@
       location.reload();
     } catch (err) {
       console.error('Account deletion failed', err);
-      alert('Account deletion could not be completed. Your account was not intentionally removed. Please try again after signing in, or contact support once support contact information is published.');
+      alert('Account deletion could not be completed. Your account was not intentionally removed. Please try again after signing in.');
     }
   }
 
@@ -50,18 +57,24 @@
     const main = document.querySelector('.content');
     if (!main || document.getElementById('hh-account-danger-zone')) return;
 
+    const sb = supabaseClient();
+    const cloudEnabled = (window.HH_CONFIG || {}).ACCOUNT_DELETION_ENABLED === true;
+    const statusText = sb && !cloudEnabled
+      ? 'Cloud account deletion is prepared in the app but remains disabled until the secure backend deletion function is deployed and tested.'
+      : 'Deletion is permanent. Export your data first if you want to keep a copy.';
+
     const section = document.createElement('section');
     section.id = 'hh-account-danger-zone';
     section.className = 'card';
     section.style.marginTop = '16px';
     section.innerHTML = `
       <h3>Account & data</h3>
-      <p class="small">Download a copy of your data before deleting your account if you want to keep your records.</p>
+      <p class="small">Download a copy of your Homestead Helper records before deletion if you want to keep them.</p>
       <div class="row wrap">
         <button class="btn secondary" type="button" id="hh-export-before-delete">Export my data</button>
         <button class="btn ghost" type="button" id="hh-delete-account">Delete account & data</button>
       </div>
-      <p class="small">Deletion is permanent. Cloud deletion requires the secure delete-account function to be deployed in Supabase.</p>`;
+      <p class="small">${statusText}</p>`;
     main.appendChild(section);
 
     document.getElementById('hh-export-before-delete')?.addEventListener('click', () => window.HH.exportData?.());
