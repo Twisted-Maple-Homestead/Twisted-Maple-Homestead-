@@ -1,5 +1,5 @@
-const CACHE="hh-v5";
-const ASSETS=["./","./index.html","./styles.css","./app.js","./offspring-fix.js","./input-validation.js","./privacy.html","./terms.html","./config.js","./manifest.json","./location-engine.js","./climate-service.js"];
+const CACHE="hh-v6";
+const ASSETS=["./","./index.html","./styles.css","./app.js","./offspring-fix.js","./input-validation.js","./account-management.js","./privacy.html","./terms.html","./config.js","./manifest.json","./location-engine.js","./climate-service.js"];
 
 self.addEventListener("install",event=>{
   event.waitUntil(caches.open(CACHE).then(cache=>cache.addAll(ASSETS)));
