@@ -3,7 +3,11 @@ window.HH_CONFIG = {
   // For Supabase, paste your project URL and anon key here.
   SUPABASE_URL: "",
   SUPABASE_ANON_KEY: "",
-  CLIMATE_LOOKUP_URL: ""
+  CLIMATE_LOOKUP_URL: "",
+
+  // Keep false until the delete-account Edge Function is deployed and
+  // the two-user isolation/deletion checklist has passed in production.
+  ACCOUNT_DELETION_ENABLED: false
 };
 
 // Load small compatibility fixes after the main app has initialized.
