@@ -25,7 +25,10 @@
     "https_active": true,
     "mobile_tested": true,
     "mobile_test_scope": "Multiple core screens and flows manually tested on iPhone; full release regression pass still required.",
-    "pwa_cache_version": "hh-v4"
+    "pwa_cache_version": "hh-v5",
+    "network_first_navigation": true,
+    "same_origin_stale_while_revalidate": true,
+    "offline_behavior_documented": true
   },
   "product": {
     "offspring_outcome_fix": true,
