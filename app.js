@@ -130,7 +130,7 @@
 
   async function ensureGarden(){
     const sb = sbClient(); if(!sb || !state.user) return null;
-    let {data,error} = await sb.from("gardens").select("*").eq("user_id",state.user.id).limit(1);
+    let {data,error} = await sb.from("gardens").select("*").eq("user_id",state.user.id);
     if(error) return null;
     if(data && data.length) return data.find(g=>g.id===state.activeGardenId)||data[0];
     const res = await dbInsert("gardens",{name:"My Garden"});
