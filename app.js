@@ -102,7 +102,10 @@
       dbSelect("breeding_records"),dbSelect("offspring_events"),dbSelect("syrup_batches"),dbSelect("tasks"),
       dbSelect("subscriptions")
     ]);
-    if([gardens,beds,harvests,animals,losses,trees,sap,stored,goals,plantings,bedHistory,health,care,breeding,offspring,syrupBatches,tasks,subs].some(v=>v===null)) return false;
+    if([gardens,beds,harvests,animals,losses,trees,sap,stored,goals,plantings,bedHistory,health,care,breeding,offspring,syrupBatches,tasks,subs].some(v=>v===null)) {
+      alert("Your account data could not be loaded. Please refresh and try again.");
+      return false;
+    }
     state.gardens=gardens;
     const savedGardenId=localStorage.getItem("hh_active_garden_"+state.user.id);
     if(!gardens.some(g=>g.id===state.activeGardenId)) state.activeGardenId=gardens.find(g=>g.id===savedGardenId)?.id||gardens[0]?.id||null;
@@ -133,7 +136,11 @@
     const sb = sbClient(); if(!sb || !state.user) return null;
     let {data,error} = await sb.from("gardens").select("*").eq("user_id",state.user.id);
     if(error) return null;
-    if(data && data.length) return data.find(g=>g.id===state.activeGardenId)||data[0];
+    if(data && data.length) {
+      const selected=data.find(g=>g.id===state.activeGardenId)||data[0];
+      state.activeGardenId=selected.id;
+      return selected;
+    }
     const res = await dbInsert("gardens",{name:"My Garden"});
     if(res){state.gardens=[res];state.activeGardenId=res.id;}
     return res;
