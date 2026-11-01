@@ -176,12 +176,12 @@
   function pct(n){return Math.round((n||0)*100)+"%"}
   function uid(prefix){return prefix+Math.random().toString(36).slice(2,8).toUpperCase()}
 
+  let sharedSupabaseClient = null;
   function getSupabase(){
     const cfg = window.HH_CONFIG || {};
-    if(cfg.SUPABASE_URL && cfg.SUPABASE_ANON_KEY && window.supabase){
-      return window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
-    }
-    return null;
+    if(!cfg.SUPABASE_URL || !cfg.SUPABASE_ANON_KEY || !window.supabase) return null;
+    if(!sharedSupabaseClient) sharedSupabaseClient = window.supabase.createClient(cfg.SUPABASE_URL,cfg.SUPABASE_ANON_KEY);
+    return sharedSupabaseClient;
   }
 
   async function initAuth(){
