@@ -284,12 +284,14 @@
     </div>`;
   }
 
+  function escapeHtml(value){return String(value ?? "").replace(/[&<>"']/g,c=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[c]));}
+
   function gardenView(){
     const total = state.data.harvests.reduce((a,b)=>a+b.amount,0);
     return `<div class="row between"><h2>🌱 My Garden</h2><button class="btn" onclick="HH.modal('addBed')">+ Bed</button></div>
       ${sbClient()?`<div class="card"><div class="row wrap"><label for="gardenSelector">Garden</label><select id="gardenSelector" onchange="HH.selectGarden(this.value)">${(state.gardens||[]).map(g=>`<option value="${g.id}" ${g.id===state.activeGardenId?"selected":""}>${g.name.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</option>`).join("")}</select><button class="btn secondary" onclick="HH.createGarden()">+ New Garden</button></div></div>`:""}
       <div class="card"><div class="kicker">Beds & containers</div>
-        <div class="list">${state.data.garden.beds.map(b=>`<div class="list-item"><div><strong>${b.name}</strong><div class="meta">${b.type} · ${b.length}×${b.width} ft</div></div><span class="pill">${b.length*b.width} sq ft</span></div>`).join("")}</div>
+        <div class="list">${state.data.garden.beds.map((b,index)=>`<button type="button" class="list-item" style="width:100%;text-align:left;font:inherit;color:inherit;cursor:pointer" onclick="HH.openBed(${index})"><div><strong>${escapeHtml(b.name)}</strong><div class="meta">${escapeHtml(b.type)} · ${b.length}×${b.width} ft</div><div class="small">View crops →</div></div><span class="pill">${b.length*b.width} sq ft</span></button>`).join("")}</div>
       </div>
       <div class="card"><div class="row between"><div><div class="kicker">My crops</div><h3>${state.data.garden.crops.length} active crops</h3></div><button class="btn secondary" onclick="HH.modal('addCrop')">+ Crop</button></div>
         <div class="row wrap">${state.data.garden.crops.map(c=>`<span class="pill">${c}</span>`).join("")}</div>
@@ -378,9 +380,18 @@
       <button class="btn" onclick="HH.lookupLocation()">Find Climate Data</button>
       <div id="locResult"></div><hr>${close}`);
 
+    if(m==="bedDetails"){
+      const bed=state.data.garden.beds.find(b=>b.id===state.selectedBedId);
+      if(!bed) return modal(`<h2>Bed unavailable</h2>${close}`);
+      const plantings=(state.data.plantings||[]).filter(p=>p.bedId===bed.id);
+      return modal(`<h2>${escapeHtml(bed.name)}</h2><p class="meta">${escapeHtml(bed.type)} · ${bed.length}×${bed.width} ft · ${bed.length*bed.width} sq ft</p>
+        <h3>Crops in this bed</h3>
+        <div class="list">${plantings.map(p=>`<div class="list-item"><div><strong>${escapeHtml(p.crop)}</strong><div class="meta">${p.qty} plants · ${escapeHtml(p.status)} · ${p.seasonYear||""}</div></div></div>`).join("")||'<p class="empty">No crops assigned to this bed yet. Crops in My crops need a planting record to place them in a bed.</p>'}</div>
+        <button class="btn" onclick="HH.modal('addPlanting')">+ Plant in this bed</button> ${close}`);
+    }
     if(m==="addPlanting") return modal(`<h2>🌱 Add Planting</h2>
       <div class="field"><label>Crop</label><select id="plCrop">${state.data.garden.crops.map(c=>`<option>${c}</option>`).join("")}</select></div>
-      <div class="field"><label>Bed</label><select id="plBed">${state.data.garden.beds.map(b=>`<option value="${b.id}">${b.name}</option>`).join("")}</select></div>
+      <div class="field"><label>Bed</label><select id="plBed">${state.data.garden.beds.map(b=>`<option value="${escapeHtml(b.id)}" ${b.id===state.selectedBedId?"selected":""}>${escapeHtml(b.name)}</option>`).join("")}</select></div>
       <div class="grid2"><div class="field"><label>Quantity</label><input id="plQty" type="number" value="6"></div><div class="field"><label>Season year</label><input id="plYear" type="number" value="${new Date().getFullYear()}"></div></div>
       <div class="field"><label>Status</label><select id="plStatus"><option>Planned</option><option>Growing</option><option>Harvesting</option><option>Finished</option></select></div>
       <button class="btn" onclick="HH.addPlanting()">Save Planting</button> ${close}`);
@@ -472,7 +483,8 @@
   }
 
   window.HH = {
-    go(tab){state.tab=tab;state.modal=null;render()},
+    go(tab){state.tab=tab;state.modal=null;state.selectedBedId=null;render()},
+    openBed(index){const bed=state.data.garden.beds[index];if(!bed)return;state.selectedBedId=bed.id;state.modal="bedDetails";render()},
     modal(name){state.modal=name;render()},
     close(){state.modal=null;render()},
     async auth(mode){const e=document.getElementById("authEmail").value.trim(),p=document.getElementById("authPass").value;if(!e||!p)return alert("Enter email and password.");await signIn(e,p,mode)},
