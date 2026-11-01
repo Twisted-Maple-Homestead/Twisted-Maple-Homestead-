@@ -104,7 +104,8 @@
     ]);
     if([gardens,beds,harvests,animals,losses,trees,sap,stored,goals,plantings,bedHistory,health,care,breeding,offspring,syrupBatches,tasks,subs].some(v=>v===null)) return false;
     state.gardens=gardens;
-    if(!gardens.some(g=>g.id===state.activeGardenId)) state.activeGardenId=gardens[0]?.id||null;
+    const savedGardenId=localStorage.getItem("hh_active_garden_"+state.user.id);
+    if(!gardens.some(g=>g.id===state.activeGardenId)) state.activeGardenId=gardens.find(g=>g.id===savedGardenId)?.id||gardens[0]?.id||null;
 
     state.allBeds=beds;
     state.data.garden.beds = beds.filter(b=>b.garden_id===state.activeGardenId).map(b=>({id:b.id,name:b.name,type:b.type,length:+(b.length_ft||0),width:+(b.width_ft||0)}));
@@ -466,6 +467,7 @@
     selectGarden(id){
       if(!(state.gardens||[]).some(g=>g.id===id)) return;
       state.activeGardenId=id;
+      if(state.user?.id) localStorage.setItem("hh_active_garden_"+state.user.id,id);
       state.data.garden.beds=(state.allBeds||[]).filter(b=>b.garden_id===id).map(b=>({id:b.id,name:b.name,type:b.type,length:+(b.length_ft||0),width:+(b.width_ft||0)}));
       render();
     },
