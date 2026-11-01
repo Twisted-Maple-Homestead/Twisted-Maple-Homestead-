@@ -1,4 +1,4 @@
-const CACHE="hh-v6";
+const CACHE="hh-v7-bed-crops";
 const ASSETS=["./","./index.html","./styles.css","./app.js","./offspring-fix.js","./input-validation.js","./account-management.js","./privacy.html","./terms.html","./config.js","./manifest.json","./location-engine.js","./climate-service.js"];
 
 self.addEventListener("install",event=>{
