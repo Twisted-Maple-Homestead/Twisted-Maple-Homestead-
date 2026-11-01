@@ -109,6 +109,12 @@
     state.gardens=gardens;
     const savedGardenId=localStorage.getItem("hh_active_garden_"+state.user.id);
     if(!gardens.some(g=>g.id===state.activeGardenId)) state.activeGardenId=gardens.find(g=>g.id===savedGardenId)?.id||gardens[0]?.id||null;
+    if(!state.activeGardenId && gardens.length===0){
+      const created=await ensureGarden();
+      if(!created) return false;
+      state.gardens=[created];
+      state.activeGardenId=created.id;
+    }
 
     state.allBeds=beds;
     state.data.garden.beds = beds.filter(b=>b.garden_id===state.activeGardenId).map(b=>({id:b.id,name:b.name,type:b.type,length:+(b.length_ft||0),width:+(b.width_ft||0)}));
