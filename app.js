@@ -95,16 +95,19 @@
   async function hydrateFromSupabase(){
     const sb = sbClient(); if(!sb || !state.user) return false;
     await loadCropReferences();
-    const [beds,harvests,animals,losses,trees,sap,stored,goals,plantings,bedHistory,health,care,breeding,offspring,syrupBatches,tasks,subs] = await Promise.all([
-      dbSelect("beds"),dbSelect("harvests"),dbSelect("animal_groups"),dbSelect("animal_losses"),
+    const [gardens,beds,harvests,animals,losses,trees,sap,stored,goals,plantings,bedHistory,health,care,breeding,offspring,syrupBatches,tasks,subs] = await Promise.all([
+      dbSelect("gardens"),dbSelect("beds"),dbSelect("harvests"),dbSelect("animal_groups"),dbSelect("animal_losses"),
       dbSelect("trees"),dbSelect("sap_collections"),dbSelect("stored_food"),dbSelect("food_goals"),
       dbSelect("plantings"),dbSelect("bed_history"),dbSelect("animal_health_records"),dbSelect("preventive_care"),
       dbSelect("breeding_records"),dbSelect("offspring_events"),dbSelect("syrup_batches"),dbSelect("tasks"),
       dbSelect("subscriptions")
     ]);
-    if([beds,harvests,animals,losses,trees,sap,stored,goals,plantings,bedHistory,health,care,breeding,offspring,syrupBatches,tasks,subs].some(v=>v===null)) return false;
+    if([gardens,beds,harvests,animals,losses,trees,sap,stored,goals,plantings,bedHistory,health,care,breeding,offspring,syrupBatches,tasks,subs].some(v=>v===null)) return false;
+    state.gardens=gardens;
+    if(!gardens.some(g=>g.id===state.activeGardenId)) state.activeGardenId=gardens[0]?.id||null;
 
-    state.data.garden.beds = beds.map(b=>({id:b.id,name:b.name,type:b.type,length:+(b.length_ft||0),width:+(b.width_ft||0)}));
+    state.allBeds=beds;
+    state.data.garden.beds = beds.filter(b=>b.garden_id===state.activeGardenId).map(b=>({id:b.id,name:b.name,type:b.type,length:+(b.length_ft||0),width:+(b.width_ft||0)}));
     state.data.harvests = harvests.map(h=>({id:h.id,crop:h.crop_name,amount:+h.amount_lb,date:h.harvested_on}));
     state.data.animals = animals.map(a=>({id:a.id,name:a.name,species:a.species,purpose:a.purpose,starting:a.starting_count,current:a.current_count,status:a.status}));
     state.data.losses = losses.map(l=>({id:l.id,groupId:l.animal_group_id,count:l.count_lost,category:l.category,date:l.loss_date,impact:l.food_production_impact||"",cause:l.suspected_cause||""}));
@@ -129,8 +132,9 @@
     const sb = sbClient(); if(!sb || !state.user) return null;
     let {data,error} = await sb.from("gardens").select("*").eq("user_id",state.user.id).limit(1);
     if(error) return null;
-    if(data && data.length) return data[0];
+    if(data && data.length) return data.find(g=>g.id===state.activeGardenId)||data[0];
     const res = await dbInsert("gardens",{name:"My Garden"});
+    if(res){state.gardens=[res];state.activeGardenId=res.id;}
     return res;
   }
 
@@ -269,6 +273,7 @@
   function gardenView(){
     const total = state.data.harvests.reduce((a,b)=>a+b.amount,0);
     return `<div class="row between"><h2>🌱 My Garden</h2><button class="btn" onclick="HH.modal('addBed')">+ Bed</button></div>
+      ${sbClient()?`<div class="card"><div class="row wrap"><label for="gardenSelector">Garden</label><select id="gardenSelector" onchange="HH.selectGarden(this.value)">${(state.gardens||[]).map(g=>`<option value="${g.id}" ${g.id===state.activeGardenId?"selected":""}>${g.name.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</option>`).join("")}</select><button class="btn secondary" onclick="HH.createGarden()">+ New Garden</button></div></div>`:""}`
       <div class="card"><div class="kicker">Beds & containers</div>
         <div class="list">${state.data.garden.beds.map(b=>`<div class="list-item"><div><strong>${b.name}</strong><div class="meta">${b.type} · ${b.length}×${b.width} ft</div></div><span class="pill">${b.length*b.width} sq ft</span></div>`).join("")}</div>
       </div>
@@ -458,6 +463,23 @@
     close(){state.modal=null;render()},
     async auth(mode){const e=document.getElementById("authEmail").value.trim(),p=document.getElementById("authPass").value;if(!e||!p)return alert("Enter email and password.");await signIn(e,p,mode)},
     signOut,
+    selectGarden(id){
+      if(!(state.gardens||[]).some(g=>g.id===id)) return;
+      state.activeGardenId=id;
+      state.data.garden.beds=(state.allBeds||[]).filter(b=>b.garden_id===id).map(b=>({id:b.id,name:b.name,type:b.type,length:+(b.length_ft||0),width:+(b.width_ft||0)}));
+      render();
+    },
+    async createGarden(){
+      if(!sbClient()) return alert("Multiple gardens require a cloud account.");
+      const name=prompt("Name your new garden:");
+      if(name===null) return;
+      const trimmed=name.trim();
+      if(!trimmed || trimmed.length>80) return alert("Enter a garden name of 1–80 characters.");
+      const created=await dbInsert("gardens",{name:trimmed});
+      if(!created) return alert("Garden could not be saved. Please try again.");
+      state.gardens=[...(state.gardens||[]),created];
+      this.selectGarden(created.id);
+    },
     async doneTask(id){
       const t=state.data.tasks.find(x=>x.id===id);
       if(!t) return;
@@ -524,6 +546,7 @@
         }
         const bed=saved?{id:saved.id,name:saved.name,type:saved.type,length:+saved.length_ft,width:+saved.width_ft}:{id:uid("BED"),name,type:"Raised Bed",length,width};
         if(!state.data.garden.beds.some(b=>b.id===bed.id)) state.data.garden.beds.push(bed);
+        if(saved) state.allBeds=[...(state.allBeds||[]),saved];
         state.modal=null;save();
       }catch(error){
         console.error("Saving garden bed failed",error);
