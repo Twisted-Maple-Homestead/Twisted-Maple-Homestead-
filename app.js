@@ -505,11 +505,30 @@
     },
     addCrop(){const c=document.getElementById("newCrop").value;if(c)state.data.garden.crops.push(c);state.modal=null;save()},
     async addBed(){
-      const garden=await ensureGarden();
-      const row={garden_id:garden?.id||null,name:document.getElementById("bedName").value,type:"Raised Bed",length_ft:+document.getElementById("bedL").value,width_ft:+document.getElementById("bedW").value};
-      const saved=await dbInsert("beds",row);
-      state.data.garden.beds.push(saved?{id:saved.id,name:saved.name,type:saved.type,length:+saved.length_ft,width:+saved.width_ft}:{id:uid("BED"),name:row.name,type:row.type,length:row.length_ft,width:row.width_ft});
-      state.modal=null;save();
+      if(state.savingBed) return;
+      const name=document.getElementById("bedName").value.trim();
+      const length=+document.getElementById("bedL").value;
+      const width=+document.getElementById("bedW").value;
+      if(!name || !Number.isFinite(length) || length<=0 || !Number.isFinite(width) || width<=0){
+        alert("Enter a bed name and positive length and width."); return;
+      }
+      state.savingBed=true;
+      try{
+        const sb=sbClient();
+        let saved=null;
+        if(sb){
+          const garden=await ensureGarden();
+          if(!garden?.id) throw new Error("Unable to find or create your garden.");
+          saved=await dbInsert("beds",{garden_id:garden.id,name,type:"Raised Bed",length_ft:length,width_ft:width});
+          if(!saved) throw new Error("The bed could not be saved to your account.");
+        }
+        const bed=saved?{id:saved.id,name:saved.name,type:saved.type,length:+saved.length_ft,width:+saved.width_ft}:{id:uid("BED"),name,type:"Raised Bed",length,width};
+        if(!state.data.garden.beds.some(b=>b.id===bed.id)) state.data.garden.beds.push(bed);
+        state.modal=null;save();
+      }catch(error){
+        console.error("Saving garden bed failed",error);
+        alert("Garden bed was not saved. Please try again. Your existing beds were not changed.");
+      }finally{state.savingBed=false;}
     },
     async addAnimal(){
       const count=+document.getElementById("anCount").value;
