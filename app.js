@@ -287,7 +287,7 @@
   function gardenView(){
     const total = state.data.harvests.reduce((a,b)=>a+b.amount,0);
     return `<div class="row between"><h2>🌱 My Garden</h2><button class="btn" onclick="HH.modal('addBed')">+ Bed</button></div>
-      ${sbClient()?`<div class="card"><div class="row wrap"><label for="gardenSelector">Garden</label><select id="gardenSelector" onchange="HH.selectGarden(this.value)">${(state.gardens||[]).map(g=>`<option value="${g.id}" ${g.id===state.activeGardenId?"selected":""}>${g.name.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</option>`).join("")}</select><button class="btn secondary" onclick="HH.createGarden()">+ New Garden</button></div></div>`:""}`
+      ${sbClient()?`<div class="card"><div class="row wrap"><label for="gardenSelector">Garden</label><select id="gardenSelector" onchange="HH.selectGarden(this.value)">${(state.gardens||[]).map(g=>`<option value="${g.id}" ${g.id===state.activeGardenId?"selected":""}>${g.name.replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;")}</option>`).join("")}</select><button class="btn secondary" onclick="HH.createGarden()">+ New Garden</button></div></div>`:""}
       <div class="card"><div class="kicker">Beds & containers</div>
         <div class="list">${state.data.garden.beds.map(b=>`<div class="list-item"><div><strong>${b.name}</strong><div class="meta">${b.type} · ${b.length}×${b.width} ft</div></div><span class="pill">${b.length*b.width} sq ft</span></div>`).join("")}</div>
       </div>
